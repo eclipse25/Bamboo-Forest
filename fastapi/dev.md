@@ -59,3 +59,17 @@ FastAPI로 개발하기 위해서 파이썬과 FastAPI, uvicorn과 추가적인 
   ```bash
   pip install fastapi[all] uvicorn
   ```
+
+## 프로젝트 개발
+
+### 서버 실행
+
+- 로컬에서 실행하기
+
+  ```bash
+  uvicorn main:app --reload
+  ```
+
+### 데이터베이스
+
+- sqlite로 개발 후 배포 시 AWS RDS의 postgresql로 이전
