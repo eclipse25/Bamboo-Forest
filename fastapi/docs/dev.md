@@ -73,3 +73,11 @@ FastAPI로 개발하기 위해서 파이썬과 FastAPI, uvicorn과 추가적인 
 ### 데이터베이스
 
 - sqlite로 개발 후 배포 시 AWS RDS의 postgresql로 이전
+
+### 모델 정의
+
+- SQLAlchemy 패키지 설치하기
+
+  ```bash
+  pip install sqlalchemy
+  ```
