@@ -6,3 +6,5 @@ __pycache__/
 
 # Temporarily hide the frontend folder
 react/
+
+.env
