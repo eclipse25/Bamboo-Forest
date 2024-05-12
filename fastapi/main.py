@@ -4,6 +4,7 @@ from sqlalchemy.orm import sessionmaker
 from models import Base  # models.py에서 Base 임포트
 from api.boards import router as board_router
 from api.school_api import router as school_router
+from fastapi.middleware.cors import CORSMiddleware
 
 # FastAPI 애플리케이션 인스턴스 생성
 app = FastAPI()
@@ -34,3 +35,12 @@ def read_root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React 앱의 URL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)

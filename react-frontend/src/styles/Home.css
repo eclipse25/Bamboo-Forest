@@ -1,0 +1,51 @@
+nav {
+    display: flex;
+    justify-content: center;
+    height: 60px;
+}
+
+.nav-header {
+    display: flex;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    width: 80vw;
+    justify-content: space-between;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar {
+    width: 30vw;
+    height: 35px;
+}
+
+.title {
+    font-size: 24px;
+    color: #333;
+  }
+  
+.description {
+    font-size: 16px;
+    color: #666;
+}
+
+.bdr {
+    border: 1px dashed rgb(143, 143, 143);
+}
+
+.nav-menu {
+    display: flex;
+    justify-content: space-between;
+    width: 30vw;
+}
+
+main {
+    width: 80vw;
+    margin-left: 10vw;
+}
