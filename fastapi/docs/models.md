@@ -19,6 +19,7 @@
 | user_ip    | 게시물 작성자 IP 주소       | String      |
 | upvotes    | 게시물 추천 수              | Integer     |
 | created_at | 게시물 작성 시간            | DateTime    |
+| delete_key | 삭제를 위한 비밀번호        | String      |
 
 ### Comment(댓글)
 

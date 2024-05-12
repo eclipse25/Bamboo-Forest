@@ -29,6 +29,7 @@ class Post(Base):
     user_ip = Column(String)
     upvotes = Column(Integer, default=0)
     created_at = Column(DateTime, default=func.now())
+    delete_key = Column(String)
 
     board = relationship("Board", back_populates="posts")
     comments = relationship("Comment", back_populates="post")
