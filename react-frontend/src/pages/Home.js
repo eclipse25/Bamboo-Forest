@@ -1,25 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Home.css';
+import debounce from 'lodash.debounce';
 
 function Home() {
     // 검색어 상태와 검색 결과 상태를 관리하는 useState 훅 사용
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
+    const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
+    const [searchResults, setSearchResults] = useState([]); // 검색 결과 상태
+    const [isFocused, setIsFocused] = useState(false); // 입력 필드의 포커스 상태
 
-    // 검색어가 변경될 때마다 호출되는 함수
-    const handleSearch = (event) => {
-        const { value } = event.target; // 입력된 검색어 가져오기
-        setSearchTerm(value); // 검색어 상태 업데이트
+    // Debounced handleSearch 함수
+    const debouncedSearch = useCallback(
+        debounce(async (query) => {
+            if (query.length >= 2) {
+                try {
+                    const response = await fetch(`http://localhost:8000/api/schools/?school_name=${query}`);
+                    if (!response.ok) {
+                        throw new Error('Search failed');
+                    }
+                    const data = await response.json();
+                    setSearchResults(data); // 직접 data 사용
+                } catch (error) {
+                    console.error(error);
+                    setSearchResults([]);
+                }
+            } else {
+                setSearchResults([]);
+            }
+        }, 300),
+        []
+    );
 
-        // 두 글자 이상 입력된 경우에만 검색 결과 가져오기
-        if (value.length >= 2) {
-            // 검색 결과를 가져오는 API 호출 또는 데이터 처리 로직
-            // 예시: fetchSearchResults(value).then(results => setSearchResults(results));
-        } else {
-            // 검색어가 두 글자 미만인 경우 검색 결과 초기화
-            setSearchResults([]);
+    useEffect(() => {
+        debouncedSearch(searchTerm);
+        return () => {
+            debouncedSearch.cancel();  // 컴포넌트 언마운트 시 디바운싱 취소
         }
+    }, [searchTerm, debouncedSearch]);
+
+    const handleSearch = (event) => {
+        setSearchTerm(event.target.value);
     };
+
+    const clearSearch = () => {
+        setSearchTerm('');
+        setSearchResults([]);
+    };
+
     return (
         <div>
             <header className="bdr">
@@ -28,22 +56,33 @@ function Home() {
                         <div className="nav-header bdr">
                             <h1 className="title bdr">Bada</h1>
                         </div>
-                        <label className="search bdr">
+                        <label className="search">
+                            {!isFocused && <span className="search-icon"><FontAwesomeIcon icon={faSearch} size="1x" /></span>}
                             <input
                                 className="search-bar"
                                 value={searchTerm}
-                                onChange={handleSearch} // onChange 이벤트 핸들러 추가
+                                onChange={handleSearch}
+                                onFocus={() => setIsFocused(true)}
+                                onBlur={() => setIsFocused(false)}
                                 placeholder="검색어를 입력하세요..."
+                                aria-label="Search input"
                             />
-                            {/* 드롭다운 영역 */}
+                            {isFocused && (
+                                <span className="clear-icon" onClick={clearSearch} role="button" tabIndex="0" style={{ cursor: 'pointer' }}
+                                     aria-label="Clear search">
+                                    <FontAwesomeIcon icon={faTimes} size="1x" />
+                                </span>
+                            )}
                             {searchResults.length > 0 && (
                                 <ul className="dropdown">
-                                    {searchResults.map(result => (
-                                        <li key={result.id}>{result.title}</li>
+                                    {searchResults.map((result, index) => (
+                                        <li key={index}>
+                                            <div className="result-title">{result.school_name}</div>
+                                            <div className="result-address">{result.address}</div>
+                                        </li>
                                     ))}
                                 </ul>
                             )}
-                            <span></span>
                         </label>
                         <ul className="nav-menu bdr">
                             <li><a href="#">Home</a></li>

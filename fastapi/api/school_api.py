@@ -1,11 +1,9 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 import httpx
-import json
 from dotenv import load_dotenv
 import os
 
-app = FastAPI()
 router = APIRouter()
 
 # .env 파일로부터 환경 변수를 로드
@@ -16,7 +14,6 @@ load_dotenv()
 class SchoolInfo(BaseModel):
     school_name: str
     address: str
-    tel: str
 
 
 # 학교 검색 결과 모델
@@ -54,6 +51,3 @@ async def search_schools(school_name: str = Query(..., min_length=2)):
             raise HTTPException(status_code=404, detail="No data found")
 
         return results
-
-# 라우터 추가
-app.include_router(router)
