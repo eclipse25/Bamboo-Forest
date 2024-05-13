@@ -12,12 +12,14 @@ load_dotenv()
 
 # 학교 정보 모델 정의
 class SchoolInfo(BaseModel):
+    code: str
     school_name: str
     address: str
 
 
 # 학교 검색 결과 모델
 class SchoolSearchResult(BaseModel):
+    school_code: str
     school_name: str
     address: str
 
@@ -44,6 +46,7 @@ async def search_schools(school_name: str = Query(..., min_length=2)):
         try:
             for item in data['schoolInfo'][1]['row']:
                 results.append(SchoolSearchResult(
+                    school_code=item['SD_SCHUL_CODE'],
                     school_name=item['SCHUL_NM'],
                     address=item['ORG_RDNMA']
                 ))

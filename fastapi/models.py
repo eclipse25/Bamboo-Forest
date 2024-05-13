@@ -10,7 +10,7 @@ Base = declarative_base()
 
 class Board(Base):
     __tablename__ = 'boards'
-    id = Column(Integer, primary_key=True)
+    id = Column(String, primary_key=True)
     name = Column(String)
     category = Column(String)
 

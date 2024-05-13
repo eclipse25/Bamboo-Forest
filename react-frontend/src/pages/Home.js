@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Home.css';
 import debounce from 'lodash.debounce';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 function Home() {
     // 검색어 상태와 검색 결과 상태를 관리하는 useState 훅 사용
     const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
     const [searchResults, setSearchResults] = useState([]); // 검색 결과 상태
     const [isFocused, setIsFocused] = useState(false); // 입력 필드의 포커스 상태
+    const navigate = useNavigate();
 
     // Debounced handleSearch 함수
     const debouncedSearch = useCallback(
@@ -28,7 +30,7 @@ function Home() {
             } else {
                 setSearchResults([]);
             }
-        }, 300),
+        }, 100),
         []
     );
 
@@ -48,6 +50,10 @@ function Home() {
         setSearchResults([]);
     };
 
+    const handleSchoolClick = (school_code) => {
+        navigate(`/board/${school_code}`);
+    };
+
     return (
         <div>
             <header className="bdr">
@@ -64,7 +70,7 @@ function Home() {
                                 onChange={handleSearch}
                                 onFocus={() => setIsFocused(true)}
                                 onBlur={() => setIsFocused(false)}
-                                placeholder="검색어를 입력하세요..."
+                                placeholder="학교 이름으로 게시판 검색"
                                 aria-label="Search input"
                             />
                             {isFocused && (
@@ -76,7 +82,7 @@ function Home() {
                             {searchResults.length > 0 && (
                                 <ul className="dropdown">
                                     {searchResults.map((result, index) => (
-                                        <li key={index}>
+                                        <li key={index} onClick={() => handleSchoolClick(result.school_code)}>
                                             <div className="result-title">{result.school_name}</div>
                                             <div className="result-address">{result.address}</div>
                                         </li>

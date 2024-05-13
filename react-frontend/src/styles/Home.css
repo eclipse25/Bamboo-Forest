@@ -70,6 +70,11 @@ nav {
     z-index: 1000; /* 다른 요소들 위에 드롭다운이 나타나도록 z-index 설정 */
     list-style-type: none;
     padding-left: 0;
+    cursor: pointer;
+}
+
+.dropdown li:hover {
+    background-color: #d6d3d3; /* 마우스 오버 시 배경색 변경 */
 }
 
 .result-title {
