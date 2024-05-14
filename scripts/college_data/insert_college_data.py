@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.inspection import inspect
-import os
+import sqlalchemy
 
 
 def load_data():
@@ -21,14 +21,17 @@ def load_data():
 
     # 데이터베이스 연결 설정
     engine = create_engine(
-        'sqlite:///.../Bada/fastapi/database.db')  # 환경에 맞춰 변경
+        'sqlite:///../../fastapi/database.db')
     inspector = inspect(engine)
 
     try:
         # 데이터베이스에 존재하지 않는 경우에만 삽입
         if not inspector.has_table("colleges"):  # 테이블 존재 확인
-            colleges.to_sql('colleges', con=engine,
-                            index=False, if_exists='append')
+            colleges.to_sql('colleges', con=engine, index=False, if_exists='append', dtype={
+                'school_code': sqlalchemy.VARCHAR,
+                'school_name': sqlalchemy.VARCHAR,
+                'address': sqlalchemy.VARCHAR
+            })
             print("Data successfully loaded into database.")
         else:
             print("Table 'colleges' already exists. No data was inserted.")
