@@ -1,0 +1,8 @@
+.content {
+    width: 1280px;
+    margin: 0 auto;
+}
+
+.bdr {
+    border: 1px dashed rgb(143, 143, 143);
+}
