@@ -33,6 +33,14 @@ class BoardInfoResponse(BaseModel):
     category: str
 
 
+# 학교 정보 모델 정의
+class SchoolInfo(BaseModel):
+    code: str
+    school_name: str
+    address: str
+    category: str
+
+
 @router.post("/check_or_create_board", response_model=BoardCheckResponse)
 async def check_or_create_board(request: BoardCheckRequest):
     logger.info(f"Received request: {request.dict()}")  # dict()로 변경
@@ -51,6 +59,28 @@ async def check_or_create_board(request: BoardCheckRequest):
             db.refresh(board)
             return BoardCheckResponse(school_code=board.id, exists=False)
         return BoardCheckResponse(school_code=board.id, exists=True)
+    except Exception as e:
+        logger.error(f"Error occurred: {e}")
+        raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
+    finally:
+        db.close()
+
+
+@router.get("/board_info/{school_code}", response_model=BoardInfoResponse)
+async def get_board_info(school_code: str):
+    logger.info(f"Fetching board info for school_code: {school_code}")
+    db: Session = SessionLocal()
+    try:
+        board = db.query(Board).filter(Board.id == school_code).first()
+        if not board:
+            logger.error(f"Board with school_code {school_code} not found")
+            raise HTTPException(status_code=404, detail="Board not found")
+        return BoardInfoResponse(
+            school_code=board.id,
+            school_name=board.name,
+            address=board.address,
+            category=board.category
+        )
     except Exception as e:
         logger.error(f"Error occurred: {e}")
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
