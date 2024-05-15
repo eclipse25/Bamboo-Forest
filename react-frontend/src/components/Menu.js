@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React from 'react';
 import '../styles/Menu.css';
 
 function Menu() {

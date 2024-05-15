@@ -50,8 +50,22 @@ function Header() {
         setSearchResults([]);
     };
 
-    const handleSchoolClick = (school_code) => {
-        navigate(`/board/${school_code}`);
+    const handleSchoolClick = async (school_code, school_name, address, category) => {
+        try {
+            const response = await fetch('http://localhost:8000/api/check_or_create_board', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ school_code, school_name, address, category })
+            });
+            if (!response.ok) {
+                throw new Error('Failed to check or create board');
+            }
+            navigate(`/board/${school_code}`);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -83,7 +97,11 @@ function Header() {
                         {searchResults.length > 0 && (
                             <ul className="dropdown">
                                 {searchResults.map((result, index) => (
-                                    <li key={index} onClick={() => handleSchoolClick(result.school_code)}>
+                                    <li key={index} onClick={() => handleSchoolClick(
+                                            result.school_code, 
+                                            result.school_name, 
+                                            result.address,
+                                            result.category)}>
                                         <div className="result-title">{result.school_name}</div>
                                         <div className="result-address">{result.address}</div>
                                     </li>

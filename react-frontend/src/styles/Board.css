@@ -45,12 +45,29 @@
     padding: 10px 10px 0px 10px;
 }
 
+.board-detail {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: max-content;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
 .board-address {
-    margin-left: 5px;
+    margin: 0;
+    padding: 0 0 10px 5px;
     color: rgb(100, 100, 100);
 }
 
 .board-state {
     margin: 0;
-    padding: 0px 0px 10px 10px;
+    padding: 0px 10px 10px 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.board-posts {
+    padding: 10px;
 }
