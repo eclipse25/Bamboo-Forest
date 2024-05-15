@@ -1,7 +1,4 @@
 from fastapi import FastAPI
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from models import Base  # models.py에서 Base 임포트
 from api.boards import router as board_router
 from api.school_api import router as school_router
 from fastapi.middleware.cors import CORSMiddleware

@@ -8,10 +8,18 @@ from sqlalchemy.orm import sessionmaker
 Base = declarative_base()
 
 
+class College(Base):
+    __tablename__ = 'colleges'
+    school_code = Column(String, primary_key=True, index=True)
+    school_name = Column(String, index=True)
+    address = Column(String, index=True)
+
+
 class Board(Base):
     __tablename__ = 'boards'
     id = Column(String, primary_key=True)
     name = Column(String)
+    address = Column(String)
     category = Column(String)
 
     posts = relationship("Post", back_populates="board")
