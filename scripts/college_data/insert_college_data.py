@@ -1,8 +1,8 @@
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, MetaData, Table, Column, String
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.inspection import inspect
-import sqlalchemy
+from sqlalchemy.sql import text
 
 
 def load_data():
@@ -20,21 +20,33 @@ def load_data():
     colleges = selected_columns.copy()
 
     # 데이터베이스 연결 설정
-    engine = create_engine(
-        'sqlite:///../../fastapi/database.db')
+    engine = create_engine('sqlite:///../../fastapi/database.db')
+    metadata = MetaData()
     inspector = inspect(engine)
 
+    colleges_table = Table(
+        'colleges', metadata,
+        Column('school_code', String, nullable=False),  # NOT NULL 제약 조건 추가
+        Column('school_name', String),
+        Column('address', String)
+    )
+
     try:
-        # 데이터베이스에 존재하지 않는 경우에만 삽입
-        if not inspector.has_table("colleges"):  # 테이블 존재 확인
+        with engine.connect() as connection:
+            if inspector.has_table("colleges"):
+                connection.execute(text('DROP TABLE IF EXISTS colleges'))
+                print("Existing table 'colleges' was dropped.")
+
+            colleges_table.create(connection)
+            print("New table 'colleges' was created.")
+
             colleges.to_sql('colleges', con=engine, index=False, if_exists='append', dtype={
-                'school_code': sqlalchemy.VARCHAR,
-                'school_name': sqlalchemy.VARCHAR,
-                'address': sqlalchemy.VARCHAR
+                'school_code': String,
+                'school_name': String,
+                'address': String
             })
-            print("Data successfully loaded into database.")
-        else:
-            print("Table 'colleges' already exists. No data was inserted.")
+            print("Data successfully loaded into database with NOT NULL constraint.")
+
     except SQLAlchemyError as e:
         print(f"An error occurred: {e}")
 
