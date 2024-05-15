@@ -73,6 +73,16 @@ FastAPI로 개발하기 위해서 파이썬과 FastAPI, uvicorn과 추가적인 
 ### 데이터베이스
 
 - sqlite로 개발 후 배포 시 AWS RDS의 postgresql로 이전
+- 데이터베이스 마이그레이션을 위해 alembic 활용
+
+  ```bash
+  alembic revision -m "변경사항 메세지"
+  alembic upgrade head
+  ```
+
+- sqlite에서는 column의 데이터 타입을 교체하는 등 alter기능을 지원하지 않는다.
+  - 중요한 데이터가 들어간 테이블의 스키마 변경시 백업에 유의해야한다.
+  - 삭제하고 다시 만들어야 하기 때문이다...
 
 ### 모델 정의
 
