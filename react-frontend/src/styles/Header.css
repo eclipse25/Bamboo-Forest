@@ -1,13 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap');
+
+.m-plus-rounded-1c-regular {
+    font-family: "M PLUS Rounded 1c", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  
 nav {
     display: flex;
     justify-content: center;
     height: 60px;
+    background: rgb(59,156,217);
+    background: linear-gradient(180deg, rgba(59,156,217,0.4) 35%, rgba(230,224,224,0.4) 100%);
 }
 
 .nav-header {
     display: flex;
     align-items: center;
-    height: 50px;
+    justify-content: center;
+    height: 60px;
+    width: 150px;
+}
+
+.title-text {
+    text-decoration: none;
+    color: #4f6d89;
+    font-weight: 400;
+    font-size: 40px;
 }
 
 .container {
@@ -37,7 +57,8 @@ nav {
     padding: 0px 30px;
     font-size: 15px;
     transition: padding-left 0.3s ease, width 0.3s ease;
-    background-color: #ebebeb;
+    background-color: #F2F2F2;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
     border-radius: 5px;
     border: 1px solid transparent;
 }

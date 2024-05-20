@@ -71,10 +71,10 @@ function Header() {
     return (
         <div id="header" role="banner">
             <nav>
-                <div className="container bdr">
-                    <div className="nav-header bdr">
-                        <h1 className="title bdr">
-                            <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>Bada</Link>
+                <div className="container">
+                    <div className="nav-header">
+                        <h1 className="title">
+                            <Link to="/" className="title-text m-plus-rounded-1c-regular">BADA</Link>
                         </h1>
                     </div>
                     <label className="search">

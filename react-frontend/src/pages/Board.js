@@ -26,7 +26,7 @@ function Board() {
     return (
         <div>
             <Header />
-            <div className='content bdr'>
+            <div className='content'>
                 <Menu />
                 <div className='board noto-sans-kr-400'>
                     <div className='board-header'>
