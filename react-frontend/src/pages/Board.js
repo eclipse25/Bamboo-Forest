@@ -62,14 +62,42 @@ function Board() {
         setDeletePassword(e.target.value);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (postContent.trim()) {
             console.log('Posting:', postContent);
-            setPostContent(''); // 제출 후 입력 필드 초기화
-            setHashtags([]); // 해시태그 초기화
-            setCurrentTag('');
-            setDeletePassword('');
+
+            const postData = {
+                board_id: school_code,
+                content: postContent,
+                delete_key: deletePassword,
+                hashtags: hashtags.map(tag => tag.replace('#', ''))
+            };
+
+            try {
+                const response = await fetch('http://localhost:8000/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(postData),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to post');
+                }
+
+                const result = await response.json();
+                console.log('Post successful:', result);
+
+                // 초기화
+                setPostContent('');
+                setHashtags([]);
+                setCurrentTag('');
+                setDeletePassword('');
+            } catch (error) {
+                console.error('Error posting:', error);
+            }
         }
     };
 
