@@ -9,6 +9,8 @@ function Board() {
     const [boardInfo, setBoardInfo] = useState(null);
     const [postContent, setPostContent] = useState('');
     const [hashtags, setHashtags] = useState([]);
+    const [currentTag, setCurrentTag] = useState('');
+    const [deletePassword, setDeletePassword] = useState('');
     const isButtonDisabled = postContent.trim() === '';
     const textareaRef = useRef(null);
 
@@ -33,14 +35,31 @@ function Board() {
         }
     }, [postContent]);
 
-    
     const handleInputChange = (e) => {
-        const input = e.target.value;
-        setPostContent(input);
+        setPostContent(e.target.value);
+    };
 
-        // 해시태그 감지
-        const detectedHashtags = input.match(/#[^\s#]+/g);
-        setHashtags(detectedHashtags || []);
+    const handleTagInputChange = (e) => {
+        setCurrentTag(e.target.value);
+    };
+
+    const handleTagKeyPress = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const trimmedTag = `#${currentTag.trim()}`;
+            if (trimmedTag !== '#' && !hashtags.includes(trimmedTag)) {
+                setHashtags([...hashtags, trimmedTag]);
+                setCurrentTag('');
+            }
+        }
+    };
+
+    const handleTagClick = (tagToRemove) => {
+        setHashtags(hashtags.filter(tag => tag !== tagToRemove));
+    };
+
+    const handleDeletePasswordChange = (e) => {
+        setDeletePassword(e.target.value);
     };
 
     const handleSubmit = (e) => {
@@ -49,6 +68,8 @@ function Board() {
             console.log('Posting:', postContent);
             setPostContent(''); // 제출 후 입력 필드 초기화
             setHashtags([]); // 해시태그 초기화
+            setCurrentTag('');
+            setDeletePassword('');
         }
     };
 
@@ -70,7 +91,7 @@ function Board() {
                             <span>정렬기준</span>
                         </div>
                     </div>
-                    <div className="post-input-container">
+                    <div className="post-input-container br">
                         <textarea
                             ref={textareaRef}
                             value={postContent}
@@ -79,14 +100,49 @@ function Board() {
                             className="post-input noto-sans-kr-400"
                             rows={1}
                         />
-                        
-                        <button
-                            onClick={handleSubmit}
-                            disabled={isButtonDisabled}
-                            className={`post-submit-button noto-sans-kr-400 ${isButtonDisabled ? 'disabled' : 'active'}`}
-                        >
-                            게시하기
-                        </button>
+                        <div className='post-input-bottom'>
+                            <div className='left-bottom-input'>
+                                <div className="tag-input-container">
+                                    <div className="tags noto-sans-kr-400">
+                                        {hashtags.map((tag, index) => (
+                                            <span
+                                                key={index}
+                                                className="tag"
+                                                onClick={() => handleTagClick(tag)}
+                                            >
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="tag-input-wrapper">
+                                        <span className="tag-prefix noto-sans-kr-400">#</span>
+                                        <input
+                                            type="text"
+                                            value={currentTag}
+                                            onChange={handleTagInputChange}
+                                            onKeyPress={handleTagKeyPress}
+                                            className="tag-input noto-sans-kr-400"
+                                            placeholder="태그"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='right-bottom-input'>
+                                <input
+                                    className='delete_key noto-sans-kr-400'
+                                    placeholder='비밀번호 입력시 삭제 가능'
+                                    value={deletePassword}
+                                    onChange={handleDeletePasswordChange}
+                                />
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={isButtonDisabled}
+                                    className={`post-submit-button noto-sans-kr-400 ${isButtonDisabled ? 'disabled' : 'active'}`}
+                                >
+                                    게시하기
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div className='board-posts'>
                         <div>

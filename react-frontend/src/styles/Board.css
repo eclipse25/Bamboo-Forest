@@ -96,15 +96,87 @@
     background-color: #f9f9f9;
 }
 
-[contenteditable="true"]:empty:before{
-    content: attr(data-placeholder);
-    position: absolute;
-    pointer-events: none;
-    color: #808080;
+.post-input-bottom {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.hashtag {
+.left-bottom-input {
+    width: 650px;
+}
+
+.tag-input-container {
+    display: flex;
+    flex-direction: row;
+    padding-left: 10px;
+    align-items: center;
+}
+
+.tags {
+    font-size: 18px;
     color: #3B9CD9;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.tag-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.tag-prefix {
+    position: absolute;
+    left: 0px;
+    font-size: 18px;
+    color: gray;
+}
+
+.tag {
+    background-color: transparent;
+    margin-right: 5px; /* 태그와 태그 입력 필드 사이의 거리 */
+    cursor: pointer;
+    font-size: 18px;
+    color: #3B9CD9;
+}
+
+.tag-input-wrapper {
+    position: relative;
+    width: 200px;
+}
+
+.tag-prefix {
+    position: absolute;
+    left: 0px;
+    font-size: 18px;
+}
+
+.tag-input {
+    width: 190px;
+    font-size: 18px;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    padding-left: 10px; /* 태그와 겹치지 않도록 패딩 추가 */
+}
+
+.right-bottom-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.delete_key {
+    height: 20px;
+    margin-right: 10px;
+    outline: none;
+    border: 1px solid #E6E0E0;
+    border-radius: 5px;
+    padding: 2px 10px;
 }
 
 .post-submit-button {
