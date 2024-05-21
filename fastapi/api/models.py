@@ -41,12 +41,31 @@ class Post(Base):
 
     board = relationship("Board", back_populates="posts")
     comments = relationship("Comment", back_populates="post")
+    tags = relationship("Tag", secondary="post_tags", back_populates="posts")
+
+
+class Tag(Base):
+    __tablename__ = 'tags'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, unique=True)
+    usage_count = Column(Integer, default=0)
+
+    posts = relationship("Post", secondary="post_tags", back_populates="tags")
+
+
+# Tag와 Post 사이의 연결 테이블
+class PostTag(Base):
+    __tablename__ = 'post_tags'
+    post_id = Column(Integer, ForeignKey(
+        'posts.id', ondelete='CASCADE'), primary_key=True)
+    tag_id = Column(Integer, ForeignKey(
+        'tags.id', ondelete='CASCADE'), primary_key=True)
 
 
 class Comment(Base):
     __tablename__ = 'comments'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    post_id = Column(Integer, ForeignKey('posts.id'))
+    post_id = Column(Integer, ForeignKey('posts.id', ondelete='CASCADE'))
     content = Column(String)
     user_ip = Column(String)
     upvotes = Column(Integer, default=0)
@@ -85,23 +104,6 @@ class FavoriteBoard(Base):
     board_id = Column(Integer, ForeignKey('boards.id'))
     user = relationship("User", back_populates="favorite_boards")
     board = relationship("Board", back_populates="favorited_by")
-
-
-class Tag(Base):
-    __tablename__ = 'tags'
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True)
-    usage_count = Column(Integer, default=0)
-    posts = relationship("Post", secondary="post_tags")
-
-
-# Tag와 Post 사이의 연결 테이블
-class PostTag(Base):
-    __tablename__ = 'post_tags'
-    post_id = Column(Integer, ForeignKey(
-        'posts.id', ondelete='CASCADE'), primary_key=True)
-    tag_id = Column(Integer, ForeignKey(
-        'tags.id', ondelete='CASCADE'), primary_key=True)
 
 
 # 데이터베이스 엔진 생성

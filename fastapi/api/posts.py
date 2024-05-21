@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from .database import SessionLocal, Post, Board, Tag, PostTag
 import logging
+from typing import List, Optional
 
 router = APIRouter()
 
@@ -26,6 +27,37 @@ class PostCreateResponse(BaseModel):
     content: str
     created_at: str
     hashtags: list[str]
+
+
+class CommentResponse(BaseModel):
+    id: int
+    post_id: int
+    content: str
+    user_ip: str
+    upvotes: int
+    created_at: str
+
+    class Config:
+        orm_mode = True
+
+
+class PostResponse(BaseModel):
+    id: int
+    board_id: int
+    content: str
+    created_at: str
+    views: int
+    upvotes: int
+    hashtags: List[str]
+    comments: List[CommentResponse]
+
+    class Config:
+        orm_mode = True
+
+
+class PostListResponse(BaseModel):
+    message: Optional[str] = None
+    posts: List[PostResponse]
 
 
 @router.post("/posts", response_model=PostCreateResponse)
@@ -85,5 +117,36 @@ async def create_post(request: PostCreateRequest, http_request: Request):
         db.rollback()  # 예외 발생 시 롤백
         raise HTTPException(
             status_code=500, detail="An error occurred while creating the post")
+    finally:
+        db.close()
+
+
+@router.get("/posts/{board_id}", response_model=PostListResponse)
+async def get_posts(board_id: int):
+    db: Session = SessionLocal()
+    try:
+        posts = db.query(Post).filter(Post.board_id == board_id).order_by(
+            Post.created_at.desc()).all()
+        if not posts:
+            return PostListResponse(message="No posts found for this board", posts=[])
+        return PostListResponse(posts=[PostResponse(
+            id=post.id,
+            board_id=post.board_id,
+            content=post.content,
+            created_at=post.created_at.isoformat(),
+            views=post.views,
+            upvotes=post.upvotes,
+            hashtags=[tag.name for tag in post.tags],
+            comments=[
+                CommentResponse(
+                    id=comment.id,
+                    post_id=comment.post_id,
+                    content=comment.content,
+                    user_ip=comment.user_ip,
+                    upvotes=comment.upvotes,
+                    created_at=comment.created_at
+                ) for comment in post.comments
+            ]
+        ) for post in posts])
     finally:
         db.close()
