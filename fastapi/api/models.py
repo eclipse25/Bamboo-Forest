@@ -98,8 +98,10 @@ class Tag(Base):
 # Tag와 Post 사이의 연결 테이블
 class PostTag(Base):
     __tablename__ = 'post_tags'
-    post_id = Column(Integer, ForeignKey('posts.id'), primary_key=True)
-    tag_id = Column(Integer, ForeignKey('tags.id'), primary_key=True)
+    post_id = Column(Integer, ForeignKey(
+        'posts.id', ondelete='CASCADE'), primary_key=True)
+    tag_id = Column(Integer, ForeignKey(
+        'tags.id', ondelete='CASCADE'), primary_key=True)
 
 
 # 데이터베이스 엔진 생성
