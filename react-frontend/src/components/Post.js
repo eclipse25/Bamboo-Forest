@@ -17,6 +17,7 @@ const Post = ({ post }) => {
             try {
                 const response = await fetch(`http://localhost:8000/api/board_info/${post.board_id}`);
                 const data = await response.json();
+                console.log("Fetched School Name Data:", data);
                 setSchoolName(data.school_name);
             } catch (error) {
                 console.error('Error fetching school name:', error);
@@ -27,6 +28,7 @@ const Post = ({ post }) => {
             try {
                 const response = await fetch(`http://localhost:8000/api/posts/${post.id}`);
                 const data = await response.json();
+                console.log("Fetched Post Details:", data);
                 setLikes(data.upvotes);
                 setComments(data.comments);
                 const liked = Cookies.get(`like-${post.id}`);
@@ -150,7 +152,7 @@ const Post = ({ post }) => {
             <div className='post-container'>
                 <div className="post-index">
                     <div className='post-index-text'>
-                        <Link to={`/board/${post.board_id}`}>{schoolName}</Link> #{post.id}
+                        <Link to={`/board/${post.board_id}`}>{schoolName}</Link> #{post.board_post_number}
                     </div>
                     <p className='post-date'>{formatDate(post.created_at)}</p>
                 </div>
