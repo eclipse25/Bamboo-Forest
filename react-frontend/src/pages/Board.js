@@ -3,11 +3,13 @@ import '../styles/Board.css';
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Menu from '../components/Menu';
+import PostList from '../components/PostList';
 
 function Board() {
     const { school_code } = useParams();
     const [boardInfo, setBoardInfo] = useState(null);
     const [postContent, setPostContent] = useState('');
+    const [posts, setPosts] = useState([]);
     const [hashtags, setHashtags] = useState([]);
     const [currentTag, setCurrentTag] = useState('');
     const [deletePassword, setDeletePassword] = useState('');
@@ -26,6 +28,20 @@ function Board() {
         }
 
         fetchBoardInfo();
+    }, [school_code]);
+
+    useEffect(() => {
+        async function fetchPosts() {
+            try {
+                const response = await fetch(`http://localhost:8000/api/posts/${school_code}`);
+                const data = await response.json();
+                setPosts(data.posts);
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+            }
+        }
+
+        fetchPosts();
     }, [school_code]);
 
     useEffect(() => {
@@ -124,7 +140,7 @@ function Board() {
                             ref={textareaRef}
                             value={postContent}
                             onChange={handleInputChange}
-                            placeholder="전하고 싶은 말을 적어주세요."
+                            placeholder="하고 싶은 말을 적어주세요."
                             className="post-input noto-sans-kr-400"
                             rows={1}
                         />
@@ -173,9 +189,7 @@ function Board() {
                         </div>
                     </div>
                     <div className='board-posts'>
-                        <div>
-                            <span>포스트</span>
-                        </div>
+                        <PostList posts={posts} />
                     </div>
                 </div>
             </div>

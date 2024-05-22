@@ -87,7 +87,6 @@
     border: none;
     border-radius: 4px;
     font-size: 20px;
-    resize: vertical;
     outline: none;
     box-shadow: none;
     resize: none;
@@ -196,8 +195,4 @@
 .post-submit-button.active {
     background-color: #3B9CD9;
     color: white;
-}
-
-.board-posts {
-    padding: 10px;
 }
