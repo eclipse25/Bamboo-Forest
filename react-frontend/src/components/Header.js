@@ -6,13 +6,11 @@ import debounce from 'lodash.debounce';
 import '../styles/Header.css';
 
 function Header() {
-    // 검색어 상태와 검색 결과 상태를 관리하는 useState 훅 사용
-    const [searchTerm, setSearchTerm] = useState(''); // 검색어 상태
-    const [searchResults, setSearchResults] = useState([]); // 검색 결과 상태
-    const [isFocused, setIsFocused] = useState(false); // 입력 필드의 포커스 상태
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isFocused, setIsFocused] = useState(false);
     const navigate = useNavigate();
 
-    // Debounced handleSearch 함수
     const debouncedSearch = useCallback(
         debounce(async (query) => {
             if (query.length >= 2) {
@@ -22,7 +20,7 @@ function Header() {
                         throw new Error('Search failed');
                     }
                     const data = await response.json();
-                    setSearchResults(data); // 직접 data 사용
+                    setSearchResults(data);
                 } catch (error) {
                     console.error(error);
                     setSearchResults([]);
@@ -37,9 +35,23 @@ function Header() {
     useEffect(() => {
         debouncedSearch(searchTerm);
         return () => {
-            debouncedSearch.cancel();  // 컴포넌트 언마운트 시 디바운싱 취소
+            debouncedSearch.cancel();
         };
     }, [searchTerm, debouncedSearch]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.search')) {
+                setIsFocused(false);
+                setSearchResults([]);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
 
     const handleSearch = (event) => {
         setSearchTerm(event.target.value);
@@ -62,6 +74,8 @@ function Header() {
             if (!response.ok) {
                 throw new Error('Failed to check or create board');
             }
+            setIsFocused(false);
+            setSearchResults([]);
             navigate(`/board/${school_code}`);
         } catch (error) {
             console.error(error);
@@ -84,7 +98,6 @@ function Header() {
                             value={searchTerm}
                             onChange={handleSearch}
                             onFocus={() => setIsFocused(true)}
-                            onBlur={() => setIsFocused(false)}
                             placeholder="학교 이름으로 게시판 검색"
                             aria-label="Search input"
                         />
@@ -97,7 +110,7 @@ function Header() {
                         {searchResults.length > 0 && (
                             <ul className="dropdown">
                                 {searchResults.map((result, index) => (
-                                    <li key={index} onClick={() => handleSchoolClick(
+                                    <li key={index} onMouseDown={() => handleSchoolClick(
                                             result.school_code, 
                                             result.school_name, 
                                             result.address,
