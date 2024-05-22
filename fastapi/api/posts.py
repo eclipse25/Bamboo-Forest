@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from .database import SessionLocal, Post, Board, Tag, PostTag
+from .database import SessionLocal, Post, Board, Tag, PostTag, Comment
 import logging
 from typing import List, Optional
 
@@ -27,6 +27,10 @@ class PostCreateResponse(BaseModel):
     content: str
     created_at: str
     hashtags: list[str]
+
+
+class CommentCreateRequest(BaseModel):
+    content: str
 
 
 class CommentResponse(BaseModel):
@@ -58,6 +62,10 @@ class PostResponse(BaseModel):
 class PostListResponse(BaseModel):
     message: Optional[str] = None
     posts: List[PostResponse]
+
+
+class CommentListResponse(BaseModel):
+    comments: List[CommentResponse]
 
 
 @router.post("/posts", response_model=PostCreateResponse)
@@ -144,9 +152,74 @@ async def get_posts(board_id: int):
                     content=comment.content,
                     user_ip=comment.user_ip,
                     upvotes=comment.upvotes,
-                    created_at=comment.created_at
+                    created_at=comment.created_at.isoformat()
                 ) for comment in post.comments
             ]
         ) for post in posts])
+    finally:
+        db.close()
+
+
+@router.post("/posts/{post_id}/comments", response_model=CommentResponse)
+async def create_comment(post_id: int, request: CommentCreateRequest, http_request: Request):
+    db: Session = SessionLocal()
+    try:
+        post = db.query(Post).filter(Post.id == post_id).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        client_ip = http_request.headers.get('X-Forwarded-For')
+        if client_ip:
+            client_ip = client_ip.split(',')[0]
+        else:
+            client_ip = http_request.client.host
+
+        new_comment = Comment(
+            post_id=post.id,
+            content=request.content,
+            user_ip=client_ip,
+        )
+
+        db.add(new_comment)
+        db.commit()
+        db.refresh(new_comment)
+
+        return CommentResponse(
+            id=new_comment.id,
+            post_id=new_comment.post_id,
+            content=new_comment.content,
+            user_ip=new_comment.user_ip,
+            upvotes=new_comment.upvotes,
+            created_at=new_comment.created_at.isoformat()
+        )
+    except Exception as e:
+        logger.error(f"Error occurred: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail="An error occurred while creating the comment")
+    finally:
+        db.close()
+
+
+@router.get("/posts/{post_id}/comments", response_model=CommentListResponse)
+async def get_comments(post_id: int):
+    db: Session = SessionLocal()
+    try:
+        comments = db.query(Comment).filter(
+            Comment.post_id == post_id).order_by(Comment.created_at.asc()).all()
+        return CommentListResponse(comments=[
+            CommentResponse(
+                id=comment.id,
+                post_id=comment.post_id,
+                content=comment.content,
+                user_ip=comment.user_ip,
+                upvotes=comment.upvotes,
+                created_at=comment.created_at.isoformat()
+            ) for comment in comments
+        ])
+    except Exception as e:
+        logger.error(f"Error occurred: {e}")
+        raise HTTPException(
+            status_code=500, detail="An error occurred while fetching comments")
     finally:
         db.close()
