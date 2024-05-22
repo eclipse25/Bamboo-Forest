@@ -57,6 +57,10 @@
     justify-content: space-between;
 }
 
+.post-comments-toggle {
+    color: gray;
+}
+
 .post-comments {
     background-color: #f9f9f9;
     padding: 5px 10px;
@@ -96,12 +100,13 @@
 }
 
 .comment-input-button {
-    width: 60px;
+    width: 45px;
+    padding: 3px 5px;
     margin-left: 20px;
     font-size: 16px;
     background-color: transparent;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
     color: #3B9CD9;

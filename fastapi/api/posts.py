@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from .database import SessionLocal, Post, Board, Tag, PostTag, Comment
 import logging
 from typing import List, Optional
+from datetime import datetime
+import pytz
 
 router = APIRouter()
 
@@ -82,7 +84,8 @@ async def create_post(request: PostCreateRequest, http_request: Request):
             board_id=board.id,
             content=request.content,
             user_ip=http_request.client.host,
-            delete_key=request.delete_key
+            delete_key=request.delete_key,
+            created_at=datetime.now(pytz.timezone('Asia/Seoul'))
         )
 
         db.add(new_post)
@@ -129,7 +132,7 @@ async def create_post(request: PostCreateRequest, http_request: Request):
         db.close()
 
 
-@router.get("/posts/{board_id}", response_model=PostListResponse)
+@router.get("/posts/board/{board_id}", response_model=PostListResponse)
 async def get_posts(board_id: int):
     db: Session = SessionLocal()
     try:
@@ -156,6 +159,40 @@ async def get_posts(board_id: int):
                 ) for comment in post.comments
             ]
         ) for post in posts])
+    finally:
+        db.close()
+
+
+@router.get("/posts/{post_id}", response_model=PostResponse)
+async def get_post(post_id: int):
+    db: Session = SessionLocal()
+    try:
+        post = db.query(Post).filter(Post.id == post_id).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        return PostResponse(
+            id=post.id,
+            board_id=post.board_id,
+            content=post.content,
+            created_at=post.created_at.isoformat(),
+            views=post.views,
+            upvotes=post.upvotes,
+            hashtags=[tag.name for tag in post.tags],
+            comments=[
+                CommentResponse(
+                    id=comment.id,
+                    post_id=comment.post_id,
+                    content=comment.content,
+                    user_ip=comment.user_ip,
+                    upvotes=comment.upvotes,
+                    created_at=comment.created_at.isoformat()
+                ) for comment in post.comments
+            ]
+        )
+    except Exception as e:
+        logger.error(f"Error occurred: {e}")
+        raise HTTPException(
+            status_code=500, detail="An error occurred while fetching the post")
     finally:
         db.close()
 
@@ -221,5 +258,47 @@ async def get_comments(post_id: int):
         logger.error(f"Error occurred: {e}")
         raise HTTPException(
             status_code=500, detail="An error occurred while fetching comments")
+    finally:
+        db.close()
+
+
+@router.post("/posts/{post_id}/upvote")
+async def upvote_post(post_id: int, http_request: Request):
+    db: Session = SessionLocal()
+    try:
+        post = db.query(Post).filter(Post.id == post_id).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        post.upvotes += 1
+        db.commit()
+        db.refresh(post)
+
+        return {"upvotes": post.upvotes}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail="An error occurred while upvoting the post")
+    finally:
+        db.close()
+
+
+@router.post("/posts/{post_id}/downvote")
+async def downvote_post(post_id: int, http_request: Request):
+    db: Session = SessionLocal()
+    try:
+        post = db.query(Post).filter(Post.id == post_id).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        post.upvotes -= 1
+        db.commit()
+        db.refresh(post)
+
+        return {"upvotes": post.upvotes}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail="An error occurred while downvoting the post")
     finally:
         db.close()

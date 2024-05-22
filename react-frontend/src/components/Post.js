@@ -6,7 +6,7 @@ import '../styles/Post.css';
 const Post = ({ post }) => {
     const [schoolName, setSchoolName] = useState('');
     const [showComments, setShowComments] = useState(false);
-    const [likes, setLikes] = useState(0);
+    const [likes, setLikes] = useState(post.upvotes || 0);
     const [isLiked, setIsLiked] = useState(false);
     const [postComment, setPostComment] = useState('');
     const [comments, setComments] = useState(post.comments || []);
@@ -23,14 +23,21 @@ const Post = ({ post }) => {
             }
         };
 
-        fetchSchoolName();
+        const fetchPostDetails = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/posts/${post.id}`);
+                const data = await response.json();
+                setLikes(data.upvotes);
+                setComments(data.comments);
+                const liked = Cookies.get(`like-${post.id}`);
+                setIsLiked(Boolean(liked));
+            } catch (error) {
+                console.error('Error fetching post details:', error);
+            }
+        };
 
-        // 쿠키에서 좋아요 상태를 불러옴
-        const liked = Cookies.get(`like-${post.id}`);
-        if (liked) {
-            setIsLiked(true);
-            setLikes(1); // 쿠키에서 좋아요 상태를 불러올 때 좋아요 수를 1로 설정
-        }
+        fetchSchoolName();
+        fetchPostDetails();
     }, [post.board_id, post.id]);
 
     useEffect(() => {
@@ -47,21 +54,39 @@ const Post = ({ post }) => {
         }
     };
 
-    const incrementLikes = () => {
+    const incrementLikes = async () => {
         const newIsLiked = !isLiked;
         setIsLiked(newIsLiked);
 
         if (newIsLiked) {
-            setLikes(likes + 1);
-            Cookies.set(`like-${post.id}`, 'true', { expires: 7 });
+            try {
+                const response = await fetch(`http://localhost:8000/api/posts/${post.id}/upvote`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                setLikes(data.upvotes);  // 서버에서 반환된 upvotes 값을 설정
+                Cookies.set(`like-${post.id}`, 'true', { expires: 7 });
+            } catch (error) {
+                console.error('Error upvoting post:', error);
+            }
         } else {
-            setLikes(likes - 1);
-            Cookies.remove(`like-${post.id}`);
+            try {
+                const response = await fetch(`http://localhost:8000/api/posts/${post.id}/downvote`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                setLikes(data.upvotes);  // 서버에서 반환된 upvotes 값을 설정
+                Cookies.remove(`like-${post.id}`);
+            } catch (error) {
+                console.error('Error downvoting post:', error);
+            }
         }
-    };
-
-    const handleCommentChange = (e) => {
-        setPostComment(e.target.value);
     };
 
     const fetchComments = async () => {
@@ -72,6 +97,10 @@ const Post = ({ post }) => {
         } catch (error) {
             console.error('Error fetching comments:', error);
         }
+    };
+
+    const handleCommentChange = (e) => {
+        setPostComment(e.target.value);
     };
 
     const submitComment = async () => {
@@ -95,14 +124,26 @@ const Post = ({ post }) => {
 
     const hasTags = post.hashtags.length > 0;
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+
+        return `${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
+    };
+
     return (
         <div className={`post ${!hasTags ? 'no-tag' : ''}`}>
             <div className='post-container'>
                 <div className="post-index">
                     <div className='post-index-text'>
-                        <Link to={`/board/${post.board_id}`}>{schoolName}</Link> {post.id}번째 유리병 편지
+                        <Link to={`/board/${post.board_id}`}>{schoolName}</Link> #{post.id}
                     </div>
-                    <p>{post.created_at}</p>
+                    <p>{formatDate(post.created_at)}</p>
                 </div>
                 <div className="post-content">{post.content}</div>
                 {hasTags && (

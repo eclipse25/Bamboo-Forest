@@ -33,7 +33,7 @@ function Board() {
     useEffect(() => {
         async function fetchPosts() {
             try {
-                const response = await fetch(`http://localhost:8000/api/posts/${school_code}`);
+                const response = await fetch(`http://localhost:8000/api/posts/board/${school_code}`);
                 const data = await response.json();
                 setPosts(data.posts);
             } catch (error) {
