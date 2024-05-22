@@ -26,6 +26,7 @@ class PostCreateRequest(BaseModel):
 class PostCreateResponse(BaseModel):
     id: int
     board_id: str
+    board_post_number: int
     content: str
     created_at: str
     hashtags: list[str]
@@ -49,7 +50,8 @@ class CommentResponse(BaseModel):
 
 class PostResponse(BaseModel):
     id: int
-    board_id: int
+    board_id: str
+    board_post_number: int
     content: str
     created_at: str
     views: int
@@ -75,13 +77,19 @@ async def create_post(request: PostCreateRequest, http_request: Request):
     logger.info(f"Received request: {request.model_dump()}")
     db: Session = SessionLocal()
     try:
-        board_id = int(request.board_id)  # 문자열로 받은 board_id를 정수로 변환
+        board_id = request.board_id
         board = db.query(Board).filter(Board.id == board_id).first()
+
         if not board:
+            logger.error(f"Board not found for board_id: {board_id}")
             raise HTTPException(status_code=404, detail="Board not found")
+
+        post_count = db.query(Post).filter(Post.board_id == board_id).count()
+        board_post_number = post_count + 1
 
         new_post = Post(
             board_id=board.id,
+            board_post_number=board_post_number,
             content=request.content,
             user_ip=http_request.client.host,
             delete_key=request.delete_key,
@@ -118,7 +126,8 @@ async def create_post(request: PostCreateRequest, http_request: Request):
 
         return PostCreateResponse(
             id=new_post.id,
-            board_id=str(new_post.board_id),  # 응답에서는 문자열로 반환
+            board_id=str(new_post.board_id),
+            board_post_number=new_post.board_post_number,
             content=new_post.content,
             created_at=new_post.created_at.isoformat(),
             hashtags=[tag.name for tag in tags]
@@ -133,9 +142,10 @@ async def create_post(request: PostCreateRequest, http_request: Request):
 
 
 @router.get("/posts/board/{board_id}", response_model=PostListResponse)
-async def get_posts(board_id: int):
+async def get_posts(board_id: str):
     db: Session = SessionLocal()
     try:
+        logger.info(f"Fetching posts for board_id: {board_id}")
         posts = db.query(Post).filter(Post.board_id == board_id).order_by(
             Post.created_at.desc()).all()
         if not posts:
@@ -143,6 +153,7 @@ async def get_posts(board_id: int):
         return PostListResponse(posts=[PostResponse(
             id=post.id,
             board_id=post.board_id,
+            board_post_number=post.board_post_number,
             content=post.content,
             created_at=post.created_at.isoformat(),
             views=post.views,
@@ -174,6 +185,7 @@ async def get_post(post_id: int):
             id=post.id,
             board_id=post.board_id,
             content=post.content,
+            board_post_number=post.board_post_number,
             created_at=post.created_at.isoformat(),
             views=post.views,
             upvotes=post.upvotes,

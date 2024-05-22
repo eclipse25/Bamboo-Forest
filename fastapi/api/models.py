@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
@@ -29,7 +29,8 @@ class Board(Base):
 class Post(Base):
     __tablename__ = 'posts'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    board_id = Column(Integer, ForeignKey('boards.id'))
+    board_id = Column(String, ForeignKey('boards.id'))
+    board_post_number = Column(Integer)
     start_time = Column(DateTime, default=func.now())
     end_time = Column(DateTime)
     content = Column(String)

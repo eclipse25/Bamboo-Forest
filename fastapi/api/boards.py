@@ -71,10 +71,15 @@ async def get_board_info(school_code: str):
     logger.info(f"Fetching board info for school_code: {school_code}")
     db: Session = SessionLocal()
     try:
+        logger.info(f"school_code type: {
+                    type(school_code)}, value: {school_code}")
+
         board = db.query(Board).filter(Board.id == school_code).first()
         if not board:
             logger.error(f"Board with school_code {school_code} not found")
             raise HTTPException(status_code=404, detail="Board not found")
+
+        logger.info(f"Found board: {board}")
         return BoardInfoResponse(
             school_code=board.id,
             school_name=board.name,

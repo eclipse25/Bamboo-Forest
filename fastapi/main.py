@@ -26,9 +26,14 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
+origins = [
+    "http://localhost:3000",  # React 애플리케이션의 주소
+    "http://localhost:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React 앱의 URL
+    allow_origins=origins,  # React 앱의 URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
