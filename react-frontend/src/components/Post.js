@@ -127,13 +127,22 @@ const Post = ({ post }) => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-        const day = date.getDate();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
         const seconds = date.getSeconds().toString().padStart(2, '0');
 
-        return `${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
+        return `${year}/${month}/${day}  ${hours}:${minutes}`;
+    };
+
+    const formatContent = (content) => {
+        return content.split('\n').map((line, index) => (
+            <React.Fragment key={index}>
+                {line}
+                <br />
+            </React.Fragment>
+        ));
     };
 
     return (
@@ -143,9 +152,9 @@ const Post = ({ post }) => {
                     <div className='post-index-text'>
                         <Link to={`/board/${post.board_id}`}>{schoolName}</Link> #{post.id}
                     </div>
-                    <p>{formatDate(post.created_at)}</p>
+                    <p className='post-date'>{formatDate(post.created_at)}</p>
                 </div>
-                <div className="post-content">{post.content}</div>
+                <div className="post-content">{formatContent(post.content)}</div>
                 {hasTags && (
                     <div className="tags post-tag">
                         {post.hashtags.map((tag, index) => (
@@ -164,16 +173,12 @@ const Post = ({ post }) => {
             </div>
             {showComments && (
                 <div className="post-comments">
-                    {comments.length > 0 ? (
-                        comments.map((comment, index) => (
-                            <div key={index} className="comment">
-                                <p>{comment.content}</p>
-                                <p>{comment.created_at}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="comments-no-comments">아직 댓글이 없습니다.</p>
-                    )}
+                    {comments.length > 0 && comments.map((comment, index) => (
+                        <div key={index} className="comment">
+                            <p >{formatContent(comment.content)}</p>
+                            <p className='comment-date'>{formatDate(comment.created_at)}</p>
+                        </div>
+                    ))}
                     <div className="comment-form">
                         <textarea
                             ref={textareaRef}

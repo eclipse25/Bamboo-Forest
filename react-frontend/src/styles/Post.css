@@ -36,6 +36,10 @@
     color: gray;
 }
 
+.post-date {
+    color: gray;
+}
+
 .post-index a {
     text-decoration: none;
     color: #3090CC;
@@ -64,23 +68,32 @@
 .post-comments {
     background-color: #f9f9f9;
     padding: 5px 10px;
-    padding-bottom: 10px;
+    padding-bottom: 5px;
 }
 
 .comment {
-    margin: 5px 0;
+    padding: 5px 0;
     display: flex;
-    align-items: center;
+    align-items: start;
     justify-content: space-between;
+    border-bottom: 1px dashed #ccc;
 }
 
 .comment * {
     margin: 0;
 }
+
+.comment-date {
+    white-space: nowrap;
+    margin-left: 20px;
+    color: gray;
+}
+
 .comment-form {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 5px 0;
 }
 
 .comments-no-comments {

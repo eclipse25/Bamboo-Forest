@@ -111,6 +111,8 @@ function Board() {
                 setHashtags([]);
                 setCurrentTag('');
                 setDeletePassword('');
+
+                window.location.reload();
             } catch (error) {
                 console.error('Error posting:', error);
             }
