@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import debounce from 'lodash.debounce';
+import Cookies from 'js-cookie';
 import '../styles/Header.css';
 
 function Header() {
@@ -74,9 +75,25 @@ function Header() {
             if (!response.ok) {
                 throw new Error('Failed to check or create board');
             }
+
+            // 방문한 게시판 정보를 쿠키에 저장
+            const visitedBoards = Cookies.get('visitedBoards') ? JSON.parse(Cookies.get('visitedBoards')) : [];
+            const newVisitedBoard = { school_code, school_name, address, category };
+            
+            // 중복 방지를 위해 기존에 존재하는지 확인 후 추가
+            const boardExists = visitedBoards.some(board => board.school_code === school_code);
+            if (!boardExists) {
+                visitedBoards.push(newVisitedBoard);
+                Cookies.set('visitedBoards', JSON.stringify(visitedBoards), { expires: 7 });
+            }
+
+            // 쿠키에 저장 (JSON 문자열로 변환)
+            Cookies.set('visitedBoards', JSON.stringify(visitedBoards), { expires: 7 });
+
             setIsFocused(false);
             setSearchResults([]);
             navigate(`/board/${school_code}`);
+            window.location.reload();
         } catch (error) {
             console.error(error);
         }
@@ -122,11 +139,7 @@ function Header() {
                             </ul>
                         )}
                     </label>
-                    <ul className="nav-menu bdr">
-                        <li><a href="#">Home</a></li>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Services</a></li>
-                        <li><a href="#">Contact</a></li>
+                    <ul className="nav-menu">
                     </ul>
                 </div>
             </nav>
