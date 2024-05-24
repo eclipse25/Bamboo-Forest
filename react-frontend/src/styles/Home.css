@@ -2,3 +2,16 @@ main {
     width: 1280px;
     margin: 0 auto;
 }
+
+.board {
+    display: flex;
+    flex-direction: column;
+}
+
+.bdr {
+    border: 1px dashed rgb(143, 143, 143);
+}
+
+.posttip {
+    color: gray;
+}
