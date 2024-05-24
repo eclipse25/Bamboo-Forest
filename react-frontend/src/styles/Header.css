@@ -1,18 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gugi&display=swap');
 
-.m-plus-rounded-1c-regular {
-    font-family: "M PLUS Rounded 1c", sans-serif;
+.noto-sans-kr-400 {
+    font-family: "Noto Sans KR", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.gugi-regular {
+    font-family: "Gugi", sans-serif;
     font-weight: 400;
     font-style: normal;
   }
-
   
 nav {
     display: flex;
     justify-content: center;
     height: 60px;
-    background: rgb(59,156,217);
-    background: linear-gradient(180deg, rgba(59,156,217,0.4) 35%, rgba(230,224,224,0.4) 100%);
+    background: rgb(100, 217, 59);
+    background: linear-gradient(180deg, rgba(100, 217, 59,0.4) 35%, rgba(230,224,224,0.3) 100%);
 }
 
 .nav-header {
@@ -20,21 +27,20 @@ nav {
     align-items: center;
     justify-content: center;
     height: 60px;
-    width: 150px;
+    margin-right: 120px;
 }
 
 .title-text {
     text-decoration: none;
-    color: #4f6d89;
+    color: #0d660d;
     font-weight: 400;
-    font-size: 40px;
+    font-size: 35px;
 }
 
 .container {
     display: flex;
     width: 1280px;
     margin: 0 auto;
-    justify-content: space-between;
     align-items: center;
 }
 
@@ -129,5 +135,5 @@ nav {
 .nav-menu {
     display: flex;
     justify-content: space-between;
-    width: 30vw;
+    width: 300px;
 }

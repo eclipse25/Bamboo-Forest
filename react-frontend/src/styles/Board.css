@@ -117,7 +117,7 @@
 
 .tags {
     font-size: 18px;
-    color: #3B9CD9;
+    color: #306d30;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -141,7 +141,7 @@
     margin-right: 5px; /* 태그와 태그 입력 필드 사이의 거리 */
     cursor: pointer;
     font-size: 18px;
-    color: #3B9CD9;
+    color: #408e40;
 }
 
 .tag-input-wrapper {
@@ -194,6 +194,6 @@
 }
 
 .post-submit-button.active {
-    background-color: #3B9CD9;
+    background-color: #408e40;
     color: white;
 }

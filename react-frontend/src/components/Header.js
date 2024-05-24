@@ -104,8 +104,8 @@ function Header() {
             <nav>
                 <div className="container">
                     <div className="nav-header">
-                        <h1 className="title">
-                            <Link to="/" className="title-text m-plus-rounded-1c-regular">BADA</Link>
+                        <h1 className="">
+                            <Link to="/" className="title-text gugi-regular">대나무숲</Link>
                         </h1>
                     </div>
                     <label className="search">

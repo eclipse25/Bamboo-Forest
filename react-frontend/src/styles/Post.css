@@ -42,7 +42,7 @@
 
 .post-index a {
     text-decoration: none;
-    color: #3090CC;
+    color: #0d660d;
     font-weight: 600;
 }
 
@@ -122,7 +122,7 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s, color 0.3s;
-    color: #3B9CD9;
+    color: #408e40;
 }
 
 .comment-input-button:disabled {
@@ -131,6 +131,6 @@
 }
 
 .comment-input-button:not(:disabled):active {
-    background-color: #3B9CD9;
+    background-color: #408e40;
     color: white;
 }
