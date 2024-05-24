@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import '../styles/Post.css';
 
-const Post = ({ post }) => {
+const Post = ({ post, fetchPosts }) => {
     const [schoolName, setSchoolName] = useState('');
     const [showComments, setShowComments] = useState(false);
     const [likes, setLikes] = useState(post.upvotes || 0);
     const [isLiked, setIsLiked] = useState(false);
     const [postComment, setPostComment] = useState('');
     const [comments, setComments] = useState(post.comments || []);
+    const [deletePassword, setDeletePassword] = useState('');
     const textareaRef = useRef(null);
 
     useEffect(() => {
@@ -118,9 +119,28 @@ const Post = ({ post }) => {
             });
             await response.json();
             setPostComment('');
-            fetchComments(); // 댓글 작성 후 새로운 댓글 목록을 다시 불러옴
+            fetchComments();
         } catch (error) {
             console.error('Error submitting comment:', error);
+        }
+    };
+
+    const deletePost = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/posts/${post.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ delete_key: deletePassword })
+            });
+            if (response.ok) {
+                await fetchPosts();
+            } else {
+                alert(`삭제 실패`);
+            }
+        } catch (error) {
+            console.error('Error deleting post:', error);
         }
     };
 
@@ -168,8 +188,26 @@ const Post = ({ post }) => {
                     <div className="post-comments-toggle" onClick={toggleComments}>
                         {showComments ? '댓글 닫기' : `댓글 ${comments.length}개 보기`}
                     </div>
-                    <div className="post-like-button" onClick={incrementLikes}>
-                        {isLiked ? '❤️' : '🤍'} {likes}
+                    <div className="post-actions-right">
+                        <div className="post-delete">
+                            <input
+                                className="post-delete-input"
+                                //type="password"
+                                placeholder="비밀번호"
+                                value={deletePassword}
+                                onChange={(e) => setDeletePassword(e.target.value)}
+                            />
+                            {deletePassword && (
+                                <button 
+                                    className="post-delete-button"
+                                    onClick={deletePost}>
+                                        삭제
+                                </button>
+                            )}
+                        </div>
+                        <div className="post-like-button" onClick={incrementLikes}>
+                            {isLiked ? '❤️' : '🤍'} {likes}
+                        </div>
                     </div>
                 </div>
             </div>

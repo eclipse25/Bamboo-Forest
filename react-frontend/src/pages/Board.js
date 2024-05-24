@@ -30,17 +30,17 @@ function Board() {
         fetchBoardInfo();
     }, [school_code]);
 
-    useEffect(() => {
-        async function fetchPosts() {
-            try {
-                const response = await fetch(`http://localhost:8000/api/posts/board/${school_code}`);
-                const data = await response.json();
-                setPosts(data.posts);
-            } catch (error) {
-                console.error('Error fetching posts:', error);
-            }
+    const fetchPosts = async () => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/posts/board/${school_code}`);
+            const data = await response.json();
+            setPosts(data.posts);
+        } catch (error) {
+            console.error('Error fetching posts:', error);
         }
-
+    };
+    
+    useEffect(() => {
         fetchPosts();
     }, [school_code]);
 
@@ -191,7 +191,7 @@ function Board() {
                         </div>
                     </div>
                     <div className='board-posts'>
-                        <PostList posts={posts} />
+                        <PostList posts={posts} fetchPosts={fetchPosts}/>
                     </div>
                 </div>
             </div>
