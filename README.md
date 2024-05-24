@@ -1,4 +1,4 @@
-# Bada
+# Bamboo-Forest
 
 **FastAPI**와 **React**를 사용한 CRUD, RESTful API 기반 대나무숲 개발 프로젝트
 
