@@ -72,6 +72,10 @@ class CommentListResponse(BaseModel):
     comments: List[CommentResponse]
 
 
+class PostDeleteRequest(BaseModel):
+    delete_key: str
+
+
 @router.post("/posts", response_model=PostCreateResponse)
 async def create_post(request: PostCreateRequest, http_request: Request):
     logger.info(f"Received request: {request.model_dump()}")
@@ -84,8 +88,12 @@ async def create_post(request: PostCreateRequest, http_request: Request):
             logger.error(f"Board not found for board_id: {board_id}")
             raise HTTPException(status_code=404, detail="Board not found")
 
-        post_count = db.query(Post).filter(Post.board_id == board_id).count()
-        board_post_number = post_count + 1
+        last_post = db.query(Post).filter(Post.board_id == board_id).order_by(
+            Post.board_post_number.desc()).first()
+        if last_post:
+            board_post_number = last_post.board_post_number + 1
+        else:
+            board_post_number = 1
 
         new_post = Post(
             board_id=board.id,
@@ -350,5 +358,43 @@ async def downvote_post(post_id: int, http_request: Request):
         db.rollback()
         raise HTTPException(
             status_code=500, detail="An error occurred while downvoting the post")
+    finally:
+        db.close()
+
+
+@router.delete("/posts/{post_id}", response_model=dict)
+async def delete_post(post_id: int, request: PostDeleteRequest):
+    db: Session = SessionLocal()
+    try:
+        post = db.query(Post).filter(Post.id == post_id).first()
+
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+
+        if post.delete_key != request.delete_key:
+            raise HTTPException(status_code=403, detail="Invalid delete key")
+
+        # 관련 태그 사용 수 감소 및 태그 삭제
+        post_tags = db.query(PostTag).filter(PostTag.post_id == post_id).all()
+        for post_tag in post_tags:
+            tag = db.query(Tag).filter(Tag.id == post_tag.tag_id).first()
+            if tag:
+                tag.usage_count -= 1
+                if tag.usage_count <= 0:
+                    db.delete(tag)
+
+        # 관련 태그 및 댓글 삭제
+        db.query(PostTag).filter(PostTag.post_id == post_id).delete()
+        db.query(Comment).filter(Comment.post_id == post_id).delete()
+
+        # 게시물 삭제
+        db.delete(post)
+        db.commit()
+        return {"message": "Post deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Error occurred: {e}")
+        raise HTTPException(
+            status_code=500, detail="An error occurred while deleting the post")
     finally:
         db.close()
