@@ -141,13 +141,51 @@ async def create_post(request: PostCreateRequest, http_request: Request):
         db.close()
 
 
+@router.get("/posts/all", response_model=PostListResponse)
+async def get_all_posts():
+    db: Session = SessionLocal()
+    try:
+        logger.info(f"Fetching all posts")
+        posts = db.query(Post).order_by(Post.created_at.desc()).all()
+
+        if not posts:
+            return PostListResponse(message="No posts found", posts=[])
+
+        return PostListResponse(posts=[PostResponse(
+            id=post.id,
+            board_id=post.board_id,
+            board_post_number=post.board_post_number,
+            content=post.content,
+            created_at=post.created_at.isoformat(),
+            views=post.views,
+            upvotes=post.upvotes,
+            hashtags=[tag.name for tag in post.tags],
+            comments=[
+                CommentResponse(
+                    id=comment.id,
+                    post_id=comment.post_id,
+                    content=comment.content,
+                    user_ip=comment.user_ip,
+                    upvotes=comment.upvotes,
+                    created_at=comment.created_at.isoformat()
+                ) for comment in post.comments
+            ]
+        ) for post in posts])
+    finally:
+        db.close()
+
+
 @router.get("/posts/board/{board_id}", response_model=PostListResponse)
 async def get_posts(board_id: str):
     db: Session = SessionLocal()
     try:
         logger.info(f"Fetching posts for board_id: {board_id}")
-        posts = db.query(Post).filter(Post.board_id == board_id).order_by(
-            Post.created_at.desc()).all()
+        if board_id:
+            posts = db.query(Post).filter(Post.board_id == board_id).order_by(
+                Post.created_at.desc()).all()
+        else:
+            posts = db.query(Post).order_by(Post.created_at.desc()).all()
+
         if not posts:
             return PostListResponse(message="No posts found for this board", posts=[])
         return PostListResponse(posts=[PostResponse(
