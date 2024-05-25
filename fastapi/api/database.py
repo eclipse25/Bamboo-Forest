@@ -14,5 +14,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 metadata = MetaData()
 metadata.reflect(bind=engine)
 
-# 테이블 생성 (이미 존재하는 테이블은 영향을 받지 않습니다)
 Base.metadata.create_all(bind=engine)
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

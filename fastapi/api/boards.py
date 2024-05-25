@@ -1,8 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from .database import SessionLocal, Board
+from sqlalchemy import func, desc
+from datetime import datetime, timedelta
+import pytz
+from .database import get_db, Board
+from .database import Post
 import logging
+# from .scheduler import trending_boards_cache, cache_lock, cache_updated_event
+# from typing import List
 
 router = APIRouter()
 
@@ -41,10 +47,14 @@ class SchoolInfo(BaseModel):
     category: str
 
 
+class BoardTrendingResponse(BaseModel):
+    board_id: str
+    post_count: int
+
+
 @router.post("/check_or_create_board", response_model=BoardCheckResponse)
-async def check_or_create_board(request: BoardCheckRequest):
-    logger.info(f"Received request: {request.dict()}")  # dict()로 변경
-    db: Session = SessionLocal()
+async def check_or_create_board(request: BoardCheckRequest, db: Session = Depends(get_db)):
+    logger.info(f"Received request: {request.dict()}")
     try:
         board = db.query(Board).filter(Board.id == request.school_code).first()
         if not board:
@@ -67,9 +77,8 @@ async def check_or_create_board(request: BoardCheckRequest):
 
 
 @router.get("/board_info/{school_code}", response_model=BoardInfoResponse)
-async def get_board_info(school_code: str):
+async def get_board_info(school_code: str, db: Session = Depends(get_db)):
     logger.info(f"Fetching board info for school_code: {school_code}")
-    db: Session = SessionLocal()
     try:
         logger.info(f"school_code type: {
                     type(school_code)}, value: {school_code}")
@@ -91,3 +100,46 @@ async def get_board_info(school_code: str):
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
     finally:
         db.close()
+
+
+@router.get("/boards/trending")  # 캐시를 사용하지 않는 경우
+def get_trending_boards_endpoint(db: Session = Depends(get_db)):
+    try:
+        last_week = datetime.now(pytz.utc) - timedelta(days=7)
+        logger.info(f"Calculating trending boards since: {last_week}")
+
+        # 트렌딩 게시판을 조회
+        posts = db.query(
+            Post.board_id, func.count(Post.id).label('post_count')
+        ).filter(
+            Post.created_at >= last_week
+        ).group_by(
+            Post.board_id
+        ).order_by(
+            desc('post_count'), Post.board_id
+        ).limit(5).all()
+
+        logger.info(f"Trending posts query result: {posts}")
+
+        trending_boards = [
+            {"board_id": post.board_id, "post_count": post.post_count} for post in posts
+        ]
+
+        if trending_boards:
+            logger.info(f"Trending boards: {trending_boards}")
+        else:
+            logger.info("No trending boards found.")
+
+        return trending_boards
+    except Exception as e:
+        logger.error(f"Error fetching trending boards: {e}")
+        return []
+
+
+# # 트렌딩 게시판 데이터 반환 엔드포인트 - 캐시 사용
+# @router.get("/boards/trending", response_model=List[BoardTrendingResponse])
+# async def get_trending_boards():
+#     logger.info("get_trending_boards() was called")
+#     cache_updated_event.wait()  # 캐시가 업데이트될 때까지 대기
+#     with cache_lock:
+#         return trending_boards_cache

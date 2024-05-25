@@ -1,11 +1,12 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from .database import SessionLocal, Post, Board, Tag, PostTag, Comment
+from .database import get_db, Post, Board, Tag, PostTag, Comment
 import logging
 from typing import List, Optional
 from datetime import datetime
 import pytz
+# from .scheduler import update_trending_boards
 
 router = APIRouter()
 
@@ -77,9 +78,8 @@ class PostDeleteRequest(BaseModel):
 
 
 @router.post("/posts", response_model=PostCreateResponse)
-async def create_post(request: PostCreateRequest, http_request: Request):
+async def create_post(request: PostCreateRequest, http_request: Request, db: Session = Depends(get_db)):
     logger.info(f"Received request: {request.model_dump()}")
-    db: Session = SessionLocal()
     try:
         board_id = request.board_id
         board = db.query(Board).filter(Board.id == board_id).first()
@@ -132,6 +132,12 @@ async def create_post(request: PostCreateRequest, http_request: Request):
         db.commit()  # 두 번째 커밋
         logger.info(f"Tags associated with post ID: {new_post.id} committed")
 
+        # # 세션 새로 고침
+        # db.refresh(new_post)
+
+        # # 트렌드 게시판 업데이트
+        # update_trending_boards()
+
         return PostCreateResponse(
             id=new_post.id,
             board_id=str(new_post.board_id),
@@ -150,8 +156,7 @@ async def create_post(request: PostCreateRequest, http_request: Request):
 
 
 @router.get("/posts/all", response_model=PostListResponse)
-async def get_all_posts():
-    db: Session = SessionLocal()
+async def get_all_posts(db: Session = Depends(get_db)):
     try:
         logger.info(f"Fetching all posts")
         posts = db.query(Post).order_by(Post.created_at.desc()).all()
@@ -184,8 +189,7 @@ async def get_all_posts():
 
 
 @router.get("/posts/board/{board_id}", response_model=PostListResponse)
-async def get_posts(board_id: str):
-    db: Session = SessionLocal()
+async def get_posts(board_id: str, db: Session = Depends(get_db)):
     try:
         logger.info(f"Fetching posts for board_id: {board_id}")
         if board_id:
@@ -221,8 +225,7 @@ async def get_posts(board_id: str):
 
 
 @router.get("/posts/{post_id}", response_model=PostResponse)
-async def get_post(post_id: int):
-    db: Session = SessionLocal()
+async def get_post(post_id: int, db: Session = Depends(get_db)):
     try:
         post = db.query(Post).filter(Post.id == post_id).first()
         if not post:
@@ -256,8 +259,7 @@ async def get_post(post_id: int):
 
 
 @router.post("/posts/{post_id}/comments", response_model=CommentResponse)
-async def create_comment(post_id: int, request: CommentCreateRequest, http_request: Request):
-    db: Session = SessionLocal()
+async def create_comment(post_id: int, request: CommentCreateRequest, http_request: Request, db: Session = Depends(get_db)):
     try:
         post = db.query(Post).filter(Post.id == post_id).first()
         if not post:
@@ -297,8 +299,7 @@ async def create_comment(post_id: int, request: CommentCreateRequest, http_reque
 
 
 @router.get("/posts/{post_id}/comments", response_model=CommentListResponse)
-async def get_comments(post_id: int):
-    db: Session = SessionLocal()
+async def get_comments(post_id: int, db: Session = Depends(get_db)):
     try:
         comments = db.query(Comment).filter(
             Comment.post_id == post_id).order_by(Comment.created_at.asc()).all()
@@ -321,8 +322,7 @@ async def get_comments(post_id: int):
 
 
 @router.post("/posts/{post_id}/upvote")
-async def upvote_post(post_id: int, http_request: Request):
-    db: Session = SessionLocal()
+async def upvote_post(post_id: int, http_request: Request, db: Session = Depends(get_db)):
     try:
         post = db.query(Post).filter(Post.id == post_id).first()
         if not post:
@@ -342,8 +342,7 @@ async def upvote_post(post_id: int, http_request: Request):
 
 
 @router.post("/posts/{post_id}/downvote")
-async def downvote_post(post_id: int, http_request: Request):
-    db: Session = SessionLocal()
+async def downvote_post(post_id: int, http_request: Request, db: Session = Depends(get_db)):
     try:
         post = db.query(Post).filter(Post.id == post_id).first()
         if not post:
@@ -363,8 +362,7 @@ async def downvote_post(post_id: int, http_request: Request):
 
 
 @router.delete("/posts/{post_id}", response_model=dict)
-async def delete_post(post_id: int, request: PostDeleteRequest):
-    db: Session = SessionLocal()
+async def delete_post(post_id: int, request: PostDeleteRequest, db: Session = Depends(get_db)):
     try:
         post = db.query(Post).filter(Post.id == post_id).first()
 
@@ -390,7 +388,15 @@ async def delete_post(post_id: int, request: PostDeleteRequest):
         # 게시물 삭제
         db.delete(post)
         db.commit()
-        return {"message": "Post deleted successfully"}
+        logger.info(">>>>>>post was deleted.\n")
+
+        # # 트렌드 게시판 업데이트
+        # update_trending_boards()
+
+        # 세션 새로 고침
+        db.commit()
+
+        return {"message": "Post deleted successfully\n"}
     except Exception as e:
         db.rollback()
         logger.error(f"Error occurred: {e}")
