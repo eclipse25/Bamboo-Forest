@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../styles/Board.css';
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
@@ -30,7 +30,7 @@ function Board() {
         fetchBoardInfo();
     }, [school_code]);
 
-    const fetchPosts = async () => {
+    const fetchPosts = useCallback(async () => {
         try {
             const response = await fetch(`http://localhost:8000/api/posts/board/${school_code}`);
             const data = await response.json();
@@ -38,11 +38,11 @@ function Board() {
         } catch (error) {
             console.error('Error fetching posts:', error);
         }
-    };
-    
+    }, [school_code]);
+
     useEffect(() => {
         fetchPosts();
-    }, [school_code]);
+    }, [fetchPosts]);
 
     useEffect(() => {
         if (textareaRef.current) {
@@ -112,7 +112,7 @@ function Board() {
                 setCurrentTag('');
                 setDeletePassword('');
 
-                window.location.reload();
+                fetchPosts();
             } catch (error) {
                 console.error('Error posting:', error);
             }

@@ -105,7 +105,7 @@
 .comment {
     padding: 5px 0;
     display: flex;
-    align-items: start;
+    align-items: flex-start;
     justify-content: space-between;
     border-bottom: 1px dashed #ccc;
 }
