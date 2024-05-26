@@ -136,6 +136,7 @@ const Post = ({ post, fetchPosts }) => {
             });
             if (response.ok) {
                 await fetchPosts();
+                setDeletePassword('')
             } else {
                 alert(`삭제 실패`);
             }

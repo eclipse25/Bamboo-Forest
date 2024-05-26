@@ -12,10 +12,11 @@
     flex-direction: column;
     padding: 20px;
     margin: 20px 0px;
-    width: 320px;
+    width: 220px;
     border-radius: 5px;
     box-shadow: 0 0 0 1px #e3e5e8,0 1px 2px 0 rgba(0,0,0,.04);
     box-sizing: border-box;
+    background: white;
 }
 
 .bdr {

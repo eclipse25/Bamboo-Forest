@@ -18,8 +18,10 @@ nav {
     display: flex;
     justify-content: center;
     height: 60px;
-    background: rgb(100, 217, 59);
-    background: linear-gradient(180deg, rgba(100, 217, 59,0.4) 35%, rgba(230,224,224,0.3) 100%);
+    /* background: rgb(100, 217, 59);
+    background: linear-gradient(180deg, rgba(100, 217, 59,0.5) 35%, rgba(230,224,224,0.5) 100%); */
+    background: linear-gradient(45deg, #8bdf91, #e8dc9f) !important;
+    box-shadow: rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
 .nav-header {

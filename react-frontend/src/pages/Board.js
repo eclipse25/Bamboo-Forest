@@ -3,6 +3,7 @@ import '../styles/Board.css';
 import { useParams } from 'react-router-dom';
 import Header from '../components/Header';
 import Menu from '../components/Menu';
+import Banner from '../components/Banner';
 import PostList from '../components/PostList';
 
 function Board() {
@@ -123,77 +124,85 @@ function Board() {
         <div>
             <Header />
             <div className='content'>
-                <Menu />
-                <div className='board noto-sans-kr-400'>
-                    <div className='board-header'>
-                        <div className='board-info'>
-                            <h2 className='board-title'>{boardInfo ? boardInfo.school_name : 'Loading...'}</h2>
-                            <div className='board-detail'>
-                                <p className='board-address'>{boardInfo ? boardInfo.address : 'Loading...'}</p>
-                            </div>
-                        </div>
-                        <div className='board-state'>
-                            <span>{boardInfo ? boardInfo.category : 'Loading...'}</span>
-                            <span>정렬기준</span>
-                        </div>
-                    </div>
-                    <div className="post-input-container br">
-                        <textarea
-                            ref={textareaRef}
-                            value={postContent}
-                            onChange={handleInputChange}
-                            placeholder="하고 싶은 말을 적어주세요."
-                            className="post-input noto-sans-kr-400"
-                            rows={1}
-                        />
-                        <div className='post-input-bottom'>
-                            <div className='left-bottom-input'>
-                                <div className="tag-input-container">
-                                    <div className="tags noto-sans-kr-400">
-                                        {hashtags.map((tag, index) => (
-                                            <span
-                                                key={index}
-                                                className="tag"
-                                                onClick={() => handleTagClick(tag)}
-                                            >
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <div className="tag-input-wrapper">
-                                        <span className="tag-prefix noto-sans-kr-400">#</span>
-                                        <input
-                                            type="text"
-                                            value={currentTag}
-                                            onChange={handleTagInputChange}
-                                            onKeyPress={handleTagKeyPress}
-                                            className="tag-input noto-sans-kr-400"
-                                            placeholder="태그"
-                                        />
-                                    </div>
+                <div className='left noto-sans-kr-400'>
+                    <Menu />
+                </div>
+                <div className='center noto-sans-kr-400'>
+                    {/* <div className='megaphone'>
+                        <span>확성기</span>
+                    </div> */}
+                    <div className='board noto-sans-kr-400'>
+                        <div className='board-header'>
+                            <div className='board-info'>
+                                <h2 className='board-title'>{boardInfo ? boardInfo.school_name : 'Loading...'}</h2>
+                                <div className='board-detail'>
+                                    <p className='board-address'>{boardInfo ? boardInfo.address : 'Loading...'}</p>
                                 </div>
                             </div>
-                            <div className='right-bottom-input'>
-                                <input
-                                    className='delete_key noto-sans-kr-400'
-                                    placeholder='비밀번호 입력시 삭제 가능'
-                                    value={deletePassword}
-                                    onChange={handleDeletePasswordChange}
-                                />
-                                <button
-                                    onClick={handleSubmit}
-                                    disabled={isButtonDisabled}
-                                    className={`post-submit-button noto-sans-kr-400 ${isButtonDisabled ? 'disabled' : 'active'}`}
-                                >
-                                    게시하기
-                                </button>
+                            <div className='board-state'>
+                                <span>{boardInfo ? boardInfo.category : 'Loading...'}</span>
+                                <span>정렬기준</span>
                             </div>
                         </div>
-                    </div>
-                    <div className='board-posts'>
-                        <PostList posts={posts} fetchPosts={fetchPosts}/>
+                        <div className="post-input-container">
+                            <textarea
+                                ref={textareaRef}
+                                value={postContent}
+                                onChange={handleInputChange}
+                                placeholder="하고 싶은 말을 적어주세요."
+                                className="post-input noto-sans-kr-400"
+                                rows={1}
+                            />
+                            <div className='post-input-bottom'>
+                                <div className='left-bottom-input'>
+                                    <div className="tag-input-container">
+                                        <div className="tags noto-sans-kr-400">
+                                            {hashtags.map((tag, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="tag"
+                                                    onClick={() => handleTagClick(tag)}
+                                                >
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <div className="tag-input-wrapper">
+                                            <span className="tag-prefix noto-sans-kr-400">#</span>
+                                            <input
+                                                type="text"
+                                                value={currentTag}
+                                                onChange={handleTagInputChange}
+                                                onKeyPress={handleTagKeyPress}
+                                                className="tag-input noto-sans-kr-400"
+                                                placeholder="태그"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className='right-bottom-input'>
+                                    <input
+                                        className='delete_key noto-sans-kr-400'
+                                        placeholder='글 삭제 비밀번호'
+                                        value={deletePassword}
+                                        onChange={handleDeletePasswordChange}
+                                    />
+                                    <button
+                                        onClick={handleSubmit}
+                                        disabled={isButtonDisabled}
+                                        className={`post-submit-button noto-sans-kr-400 ${isButtonDisabled ? 'disabled' : 'active'}`}
+                                    >
+                                        게시하기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div className='board-posts'>
+                            <PostList posts={posts} fetchPosts={fetchPosts}/>
+                        </div>
                     </div>
                 </div>
+                <Banner />
             </div>
         </div>
     );
