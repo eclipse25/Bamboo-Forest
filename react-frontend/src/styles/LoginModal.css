@@ -60,7 +60,6 @@
 .modal-body form input[type="password"] {
     height: 45px;
     line-height: 45px;
-    padding-top: 5px;   /* 세로 중앙정렬문제 */
     text-indent: 10px;
     margin-bottom: 15px;
     border: 1px solid #ccc;

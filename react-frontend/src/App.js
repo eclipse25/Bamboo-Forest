@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { RecentBoardsProvider, RecentBoardsContext } from './components/RecentBoardsContext';
 import Board from './pages/Board'; // 게시판 컴포넌트 예시
 import Home from './pages/Home'; // 홈 컴포넌트 예시
+import SignUp from './pages/SignUp';
 
 const TrackLocation = () => {
   const location = useLocation();
@@ -61,6 +62,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/board/:school_code" element={<Board />} />
+          <Route path="/signup" element={<SignUp />} />
         </Routes>
       </Router>
     </RecentBoardsProvider>
