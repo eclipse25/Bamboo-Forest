@@ -29,7 +29,8 @@ nav {
     align-items: center;
     justify-content: center;
     height: 60px;
-    margin-right: 120px;
+    margin-right: 110px;
+    padding-left: 10px;
 }
 
 .title-text {
@@ -134,8 +135,37 @@ nav {
     border: 1px dashed rgb(143, 143, 143);
 }
 
+.header-right {
+    margin-left: 100px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
 .nav-menu {
     display: flex;
     justify-content: space-between;
-    width: 300px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    width: 160px;
+}
+
+.wishlist {
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+    color: #000;
+}
+
+.login {
+    background: none;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.login:hover {
+    color: #408e40;
 }

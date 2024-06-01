@@ -4,12 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import debounce from 'lodash.debounce';
 import Cookies from 'js-cookie';
+import LoginModal from './LoginModal';
 import '../styles/Header.css';
 
 function Header() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isFocused, setIsFocused] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const navigate = useNavigate();
 
     const debouncedSearch = useCallback(
@@ -99,6 +101,14 @@ function Header() {
         }
     };
 
+    const openLoginModal = () => {
+        setIsLoginModalOpen(true);
+    };
+
+    const closeLoginModal = () => {
+        setIsLoginModalOpen(false);
+    };
+
     return (
         <div id="header" role="banner">
             <nav>
@@ -139,10 +149,15 @@ function Header() {
                             </ul>
                         )}
                     </label>
-                    <ul className="nav-menu">
-                    </ul>
+                    <div className='header-right'>
+                        <ul className="nav-menu">
+                            <div></div>
+                            <button onClick={openLoginModal} className="login noto-sans-kr-400">로그인</button>
+                        </ul>
+                    </div>
                 </div>
             </nav>
+            <LoginModal show={isLoginModalOpen} onClose={closeLoginModal} />
         </div>
     );
 }
