@@ -121,7 +121,7 @@ function Header() {
                     <label className="search">
                         {!isFocused && <span className="search-icon"><FontAwesomeIcon icon={faSearch} size="1x" /></span>}
                         <input
-                            className="search-bar"
+                            className="search-bar noto-sans-kr-400"
                             value={searchTerm}
                             onChange={handleSearch}
                             onFocus={() => setIsFocused(true)}
