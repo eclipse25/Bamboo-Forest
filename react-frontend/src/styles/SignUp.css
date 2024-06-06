@@ -119,3 +119,9 @@ button:disabled.submit-disabled {
 p {
     margin: 0;
 }
+
+.signup-result {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}

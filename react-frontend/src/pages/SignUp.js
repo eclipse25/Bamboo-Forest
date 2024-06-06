@@ -12,6 +12,7 @@ const SignUp = () => {
     const [emailCheckMessage, setEmailCheckMessage] = useState('이메일 확인');
     const [emailCheckError, setEmailCheckError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [submitMessage, setSubmitMessage] = useState('');
 
     const isEmailValid = (email) => {
         // 이메일 형식 확인을 위한 정규 표현식
@@ -58,23 +59,16 @@ const SignUp = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!isPasswordValid(password)) {
-            alert('비밀번호 형식을 지켜주세요');
-            return;
-        }
-        if (password !== confirmPassword) {
-            alert('Passwords do not match');
-            return;
-        }
-        if (!emailAvailable) {
-            alert('Please check your email first');
-            return;
-        }
         try {
-            await axios.post('http://localhost:8000/api/register', { email, password });
-            alert('User registered successfully');
+            await axios.post('http://localhost:8000/api/user/register', { email, password });
+            setSubmitMessage(`${email}으로 회원가입 완료!`);
+            setEmail('');
+            setPassword('');
+            setConfirmPassword('');
+            setEmailAvailable(false);
+            setEmailCheckMessage('이메일 확인');
         } catch (error) {
-            alert('Error registering user');
+            setSubmitMessage('회원가입 실패');
         }
     };
 
@@ -97,6 +91,7 @@ const SignUp = () => {
                                 setEmailError('');
                                 setEmailCheckMessage('이메일 확인');
                                 setEmailCheckError('');
+                                setSubmitMessage('');
                             }}
                             className={`noto-sans-kr-400 signup-input ${emailAvailable ? 'email-available' : ''}`}
                             placeholder="이메일 주소"
@@ -121,7 +116,10 @@ const SignUp = () => {
                             type="password" 
                             name="confirmPassword" 
                             value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            onChange={(e) => {
+                                setConfirmPassword(e.target.value);
+                                setSubmitMessage('');
+                            }}
                             placeholder="비밀번호 확인"
                             required
                         />
@@ -136,6 +134,13 @@ const SignUp = () => {
                         <button type="submit" 
                             className={`sign-up-button noto-sans-kr-400 ${isFormValid ? 'submit-enabled' : 'submit-disabled'}`}
                             disabled={!isFormValid}>회원가입</button>
+                        {submitMessage && (
+                            <div className='signup-result'>
+                                <p className={`noto-sans-kr-400 ${submitMessage.includes('완료') ? 'success-message' : 'error-message'}`}>
+                                    {submitMessage}
+                                </p>
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>
